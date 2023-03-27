@@ -8,8 +8,9 @@ import Footer from "./Footer";
 import Header from "./Header";
 import "./Register.css";
 
-const Register = () => {
+const Register = () =>  {
   const { enqueueSnackbar } = useSnackbar();
+  
 
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
@@ -21,7 +22,8 @@ const Register = () => {
    *  Object with values of username, password and confirm password user entered to register
    *
    * API endpoint - "POST /auth/register"
-   *
+   * 
+   * 
    * Example for successful response from backend for the API call:
    * HTTP 201
    * {
@@ -35,8 +37,60 @@ const Register = () => {
    *      "message": "Username is already taken"
    * }
    */
-  const register = async (formData) => {
+  const [formData, setFormData] = useState({});
+  const [load, setLoad] = useState(false);
+
+  let handleDetail = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
+
+  const register = async (formData) => {
+
+    if (!validateInput(formData)) 
+      return;
+
+      setLoad(true);
+      try {
+        const data = {
+          username: formData.username,
+          password: formData.password,
+        };
+     
+        let res = await axios.post(`${config.endpoint}/auth/register`, data);
+
+  
+        setFormData({
+          username: "",
+          password: "",
+          confirmPassword: "",
+        });
+
+        if (res.data.success) {
+          enqueueSnackbar("Registered successfully", {
+            variant: "success",
+          });
+        }
+      } catch (error) {
+     
+        if (error.response && error.response.status === 400) {
+          enqueueSnackbar(error.response.data.message, { variant: "error" });
+        } else {
+          enqueueSnackbar(
+            "Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
+            { variant: "error" }
+          );
+        }
+      }
+
+      setLoad(false);
+    };
+
+  
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement user input validation logic
   /**
@@ -57,6 +111,32 @@ const Register = () => {
    * -    Check that confirmPassword field has the same value as password field - Passwords do not match
    */
   const validateInput = (data) => {
+    console.log(data);
+    if (!data.username) {
+      enqueueSnackbar("Username is a required field", { variant: "warning" });
+      return false;
+    }
+    if (!data.password) {
+      enqueueSnackbar("Password is a required field", { variant: "warning" });
+      return false;
+    }
+    if (data.username.length < 6) {
+      enqueueSnackbar("Username must be at least 6 characters", {
+        variant: "warning",
+      });
+      return false;
+    }
+    if (data.password.length < 6) {
+      enqueueSnackbar("Password must be at least 6 characters", {
+        variant: "warning",
+      });
+      return false;
+    }
+    if (data.password !== data.confirmPassword) {
+      enqueueSnackbar("Passwords do not match", { variant: "warning" });
+      return false;
+    }
+    return true;
   };
 
   return (
@@ -78,6 +158,8 @@ const Register = () => {
             name="username"
             placeholder="Enter Username"
             fullWidth
+            onChange={handleDetail}
+            value={formData.username || ""}
           />
           <TextField
             id="password"
@@ -87,6 +169,8 @@ const Register = () => {
             type="password"
             helperText="Password must be atleast 6 characters length"
             fullWidth
+            onChange={handleDetail}
+            value={formData.password || ""}
             placeholder="Enter a password with minimum 6 characters"
           />
           <TextField
@@ -96,10 +180,24 @@ const Register = () => {
             name="confirmPassword"
             type="password"
             fullWidth
+            onChange={handleDetail}
+            value={formData.confirmPassword || ""}
           />
-           <Button className="button" variant="contained">
-            Register Now
-           </Button>
+           {load ? (
+            <Box display="flex" justifyContent="center" alignItems="center">
+              <CircularProgress color="success" size={25} />
+            </Box>
+          ) : (
+            <Button
+              className="button"
+              variant="contained"
+              onClick={async () => {
+                await register(formData);
+              }}
+            >
+              Register Now
+            </Button>
+          )}
           <p className="secondary-action">
             Already have an account?{" "}
              <a className="link" href="#">
