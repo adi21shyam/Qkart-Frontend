@@ -7,13 +7,13 @@ import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import "./Register.css";
+import { useHistory, Link } from "react-router-dom";
 
-const Register = () =>  {
+const Register = () => {
   const { enqueueSnackbar } = useSnackbar();
-  
+  let history = useHistory();
 
 
-  // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
   /**
    * Definition for register handler
    * - Function to be called when the user clicks on the register button or submits the register form
@@ -22,8 +22,7 @@ const Register = () =>  {
    *  Object with values of username, password and confirm password user entered to register
    *
    * API endpoint - "POST /auth/register"
-   * 
-   * 
+   *
    * Example for successful response from backend for the API call:
    * HTTP 201
    * {
@@ -62,7 +61,7 @@ const Register = () =>  {
         };
      
         let res = await axios.post(`${config.endpoint}/auth/register`, data);
-
+        history.push("/login");
   
         setFormData({
           username: "",
@@ -159,7 +158,7 @@ const Register = () =>  {
             placeholder="Enter Username"
             fullWidth
             onChange={handleDetail}
-            value={formData.username || ""}
+            value={formData.username}
           />
           <TextField
             id="password"
@@ -200,9 +199,9 @@ const Register = () =>  {
           )}
           <p className="secondary-action">
             Already have an account?{" "}
-             <a className="link" href="#">
+            <Link className="link" to="/login">
               Login here
-             </a>
+            </Link>
           </p>
         </Stack>
       </Box>
