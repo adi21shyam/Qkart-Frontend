@@ -35,7 +35,7 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
         </Button>
       ) : !username ? (
         <>
-          {/* <Box width="30vw">{children && children}</Box> */}
+          <Box width="30vw">{children && children}</Box>
           {console.log("child", children)}
           <Stack direction="row" spacing={2} alignItems="center">
             <Button
@@ -57,7 +57,7 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
         </>
       ) : (
         <>
-          {/* <Box width="30vw">{children && children}</Box> */}
+          <Box width="30vw">{children && children}</Box>
           <Stack direction="row" spacing={2} alignItems="center">
             <Avatar alt={username} src="../../public/avatar.png" />
             <p>{username}</p>

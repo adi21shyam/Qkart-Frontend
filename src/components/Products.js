@@ -17,7 +17,7 @@ import ProductCard from "./ProductCard";
 // Definition of Data Structures used
 /**
  * @typedef {Object} Product - Data on product available to buy
- * 
+ *
  * @property {string} name - The name or title of the product
  * @property {string} category - The category that the product belongs to
  * @property {number} cost - The price to buy the product
@@ -26,9 +26,7 @@ import ProductCard from "./ProductCard";
  * @property {string} _id - Unique ID for the product
  */
 
-
 const Products = () => {
-
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Fetch products data and store it
   /**
    * Make API call to get the products list and store it to display the products
@@ -66,44 +64,40 @@ const Products = () => {
    *      "message": "Something went wrong. Check the backend console for more details"
    * }
   //  */
-    let { enqueueSnackbar } = useSnackbar();
-   let token = localStorage.getItem("token");
-   let username = localStorage.getItem("username");
-   let balance = localStorage.getItem("balance");
- 
-  //  const [enqueueSnackbar] = useSnackbar();
-   const [productDetails, setProductDetails] = useState([]);
-   const [filteredProducts, setFilteredProducts] = useState([]);   
-   const [cartItems, setCartItems] = useState([]); 
-   const [cartLoad, setCartLoad] = useState(false);   
-   const [timeout, setTimeout] = useState(null);   
-   const [load, setLoad] = useState(false);
+  let { enqueueSnackbar } = useSnackbar();
+  let token = localStorage.getItem("token");
+  let username = localStorage.getItem("username");
+  let balance = localStorage.getItem("balance");
 
+  //  const [enqueueSnackbar] = useSnackbar();
+  const [productDetails, setProductDetails] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
+  const [cartLoad, setCartLoad] = useState(false);
+  const [timeoutId, setTimeoutID] = useState(null);
+  const [load, setLoad] = useState(false);
 
   const performAPICall = async () => {
-
     setLoad(true);
     try {
-      // GET call
+     
       let response = await axios.get(`${config.endpoint}/products`);
       //Success
       setProductDetails(response.data);
       setFilteredProducts(response.data);
-      // Fetch cartItems
+      
       setCartLoad(true);
-    } 
-    catch (error) {
+    } catch (error) {
       if (error.response && error.response.status === 400) {
         enqueueSnackbar(error.response.data.message, { variant: "error" });
       }
     }
-    
-    setLoad(false);
 
+    setLoad(false);
   };
 
   useEffect(() => {
-    performAPICall(); 
+    performAPICall();
   }, []);
 
   // useEffect(() => {
@@ -126,6 +120,32 @@ const Products = () => {
    *
    */
   const performSearch = async (text) => {
+    setLoad(true);
+    try {
+      let response = await axios.get(
+        `${config.endpoint}/products/search?value=${text}`
+      );
+
+      setFilteredProducts(response.data);
+      console.log(filteredProducts,"filterProduct");
+    } catch (error) {
+      if (error.response) {
+        if (error.response.status === 404) {
+          setFilteredProducts([]);
+        }
+        if (error.response.status === 500) {
+          enqueueSnackbar(error.response.data.message, { variant: "error" });
+          setFilteredProducts(productDetails);
+        }
+      } else {
+        enqueueSnackbar(
+          "Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
+          { variant: "error" }
+        );
+      }
+    }
+
+    setLoad(false);
   };
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Optimise API calls with debounce search implementation
@@ -141,20 +161,38 @@ const Products = () => {
    *
    */
   const debounceSearch = (event, debounceTimeout) => {
+    let text = event.target.value;
+    // [IF true] Clear timoutId
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+    // Set timeout & make the API call
+    let timeOut = setTimeout(() => {
+      performSearch(text);
+    }, 500);
+    // Update set timeoutId
+    setTimeoutID(timeOut);
   };
-
-
-
-
-
-
 
   return (
     <div>
       <Header>
-        {/* TODO: CRIO_TASK_MODULE_PRODUCTS - Display search bar in the header for Products page */}
-
-      </Header>
+        <TextField
+          className="search-desktop"
+          size="small"
+          fullWidth
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <Search color="primary" />
+              </InputAdornment>
+            ),
+          }}
+          placeholder="Search for items/categories"
+          name="search"
+          onChange={(e) => debounceSearch(e, timeoutId)}
+        />
+      </Header>  
 
       {/* Search view for mobiles */}
       <TextField
@@ -170,17 +208,27 @@ const Products = () => {
         }}
         placeholder="Search for items/categories"
         name="search"
-      />
-       <Grid container>
-         <Grid item className="product-grid">
-           <Box className="hero">
-             <p className="hero-heading">
-               India’s <span className="hero-highlight">FASTEST DELIVERY</span>{" "}
-               to your door step
-             </p>
-           </Box>
-         </Grid>
-         {load ? (
+        onChange={(e) => debounceSearch(e, timeoutId)}
+    /> 
+         
+      <Grid container>
+        <Grid
+          item
+          container
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
+          
+        >
+          <Grid item className="product-grid">
+            <Box className="hero">
+              <p className="hero-heading">
+                India’s <span className="hero-highlight">FASTEST DELIVERY</span>{" "}
+                to your door step
+              </p>
+            </Box>
+          </Grid>
+          {load ? (
             <Box
               display="flex"
               flexDirection="column"
@@ -224,7 +272,8 @@ const Products = () => {
               )}
             </Grid>
           )}
-       </Grid>
+        </Grid>
+      </Grid>
       <Footer />
     </div>
   );
