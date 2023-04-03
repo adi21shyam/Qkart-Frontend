@@ -1,12 +1,12 @@
 import Register from "./components/Register";
 import Login from "./components/Login";
-import ipConfig from "./ipConfig.json";
+// import ipConfig from "./ipConfig.json";
 import { Route, Switch } from "react-router-dom";
 import Products from "./components/Products";
 import Checkout from "./components/Checkout";
 import Thanks from "./components/Thanks";
 export const config = {
-  endpoint: `https://qkart-1.onrender.com`,
+  endpoint: `https://qkart-1.onrender.com/api/v1`,
 };
 
 function App() {
