@@ -18,7 +18,7 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
 
     localStorage.clear();
   }
-  // if(hasHiddenAuthButtons)
+  if(hasHiddenAuthButtons)
 
     return (
       <Box className="header">

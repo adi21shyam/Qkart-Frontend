@@ -178,6 +178,7 @@ const Checkout = () =>{
       });
 
       setAddresses({ ...addresses, all: response.data });
+      console.log("address1",addresses)
       return response.data;
     } catch {
       enqueueSnackbar(
@@ -204,6 +205,7 @@ const Checkout = () =>{
         }
       );
       setAddresses({ ...addresses, all: response.data });
+      console.log("address2",addresses)
       setNewAddress({ value: "", isAddingNewAddress: false });
     } catch (e) {
       if (e.response) {
@@ -231,6 +233,7 @@ const Checkout = () =>{
         }
       );
       setAddresses({ ...addresses, all: response.data });
+      console.log("address3",addresses)
     } catch (e) {
       if (e.response) {
         enqueueSnackbar(e.response.data.message, { variant: "error" });
@@ -459,7 +462,7 @@ const Checkout = () =>{
                 addAddress={addAddress}
               />
             )}
-
+            
             <Typography color="#3C3C3C" variant="h4" my="1rem">
               Payment
             </Typography>

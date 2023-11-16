@@ -190,8 +190,8 @@ const Register = () => {
             <Button
               className="button"
               variant="contained"
-              onClick={async () => {
-                await register(formData);
+              onClick={ () => {
+                 register(formData);
               }}
             >
               Register Now
